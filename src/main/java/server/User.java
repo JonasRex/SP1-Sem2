@@ -1,4 +1,15 @@
 package server;
 
-public class User {
+public class User
+{
+    String userName;
+
+    public User(String userName)
+    {
+        this.userName = userName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
 }
