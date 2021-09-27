@@ -1,15 +1,15 @@
 package server;
 
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 
 public class ChatServer {
 
-
     //Call server with arguments like this: 8088
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) throws IOException {
         int port = 8088;
         
         try {
@@ -23,8 +23,6 @@ public class ChatServer {
             System.out.println("Illegal inputs provided when starting the server!");
             return;
         }
-
+        new EchoServer().startServer(port);
     }
-
-
 }
