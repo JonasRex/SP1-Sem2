@@ -3,7 +3,6 @@ package server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,7 +26,7 @@ public class ClientHandler implements Runnable
         this.client = client;
         this.printWriter = new PrintWriter(client.getOutputStream(),true);
         this.scanner = new Scanner(client.getInputStream());
-        this.user = null;
+        this.user = new User("",0);
         this.isRunning = true;
         this.userList = userList;
         this.messages = messages;
@@ -97,7 +96,7 @@ public class ClientHandler implements Runnable
     private void sendMessage(String message1, String message2) throws InterruptedException {
         if(message1.equals("*"))
         {
-            messages.put(new Message("all",message2));
+            messages.put(new Message("all",user.getUserName() + ": " + message2));
         }
         else
         {
@@ -105,7 +104,7 @@ public class ClientHandler implements Runnable
             {
                 if(message1.equals(u.getUserName().toLowerCase()))
                 {
-                    messages.put(new Message(message1,message2));
+                    messages.put(new Message(message1,user.getUserName() + ": " + message2));
                     break;
                 }
             }

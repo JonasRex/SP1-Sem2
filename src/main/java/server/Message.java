@@ -8,7 +8,6 @@ public class Message
     public Message(String receiver, String message) {
         this.receiver = receiver;
         this.message = message;
-        System.out.println("new message created to " + receiver + message);
     }
 
     public String getReceiver() {
