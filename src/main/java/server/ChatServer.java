@@ -12,12 +12,9 @@ public class ChatServer {
     public static void main(String[] args) throws IOException {
         int port = 8088;
         EchoServer echoServer = new EchoServer();
-        try
-        {
+        try {
             echoServer.startServer(port);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

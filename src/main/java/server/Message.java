@@ -1,7 +1,6 @@
 package server;
 
-public class Message
-{
+public class Message {
     String receiver;
     String message;
 

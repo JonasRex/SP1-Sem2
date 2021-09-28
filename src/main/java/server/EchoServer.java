@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class EchoServer
-{
+public class EchoServer {
     private ServerSocket serverSocket;
     CopyOnWriteArrayList<ClientHandler> clientList;
     CopyOnWriteArrayList<User> userList;
@@ -25,8 +24,7 @@ public class EchoServer
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         dispatcher = new Dispatcher(messages, clientList);
 
-        while(true)
-        {
+        while (true) {
             System.out.println("Waiting for a client..");
             Socket client = serverSocket.accept();
             System.out.println("New client connectet"); //TODO tilføj brugernavn
@@ -37,8 +35,7 @@ public class EchoServer
         }
     }
 
-    private void addUsersToList()
-    {
+    private void addUsersToList() {
         userList.add(new User("Eske", 0));
         userList.add(new User("Jonas", 1));
         userList.add(new User("Lars", 2));
