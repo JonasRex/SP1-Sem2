@@ -11,16 +11,16 @@ public class EchoServer
 {
     private ServerSocket serverSocket;
     CopyOnWriteArrayList<ClientHandler> clientList;
-    ArrayList<User> userList;
+    CopyOnWriteArrayList<User> userList;
     Dispatcher dispatcher;
-    BlockingQueue<String> messages;
+    BlockingQueue<Message> messages;
 
     public void startServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         System.out.println("Server started on port: " + port);
-        clientList = new CopyOnWriteArrayList();
+        clientList = new CopyOnWriteArrayList<>();
         messages = new ArrayBlockingQueue<>(10);
-        userList = new ArrayList<>();
+        userList = new CopyOnWriteArrayList<>();
         addUsersToList();
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         dispatcher = new Dispatcher(messages, clientList);
@@ -30,7 +30,7 @@ public class EchoServer
             System.out.println("Waiting for a client..");
             Socket client = serverSocket.accept();
             System.out.println("New client connectet"); //TODO tilføj brugernavn
-            ClientHandler clientHandler = new ClientHandler(client, userList, messages);
+            ClientHandler clientHandler = new ClientHandler(client, userList, messages, clientList);
             clientList.add(clientHandler);
             executorService.execute(clientHandler);
             executorService.execute(dispatcher);

@@ -6,22 +6,24 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientHandler implements Runnable
 {
+    CopyOnWriteArrayList<ClientHandler> clientList;
     Socket client;
     PrintWriter printWriter;
     Scanner scanner;
     boolean isRunning;
     User user;
-    ArrayList<User> userList;
-    BlockingQueue<String> messages;
+    CopyOnWriteArrayList<User> userList;
+    BlockingQueue<Message> messages;
 
     public PrintWriter getPrintWriter() {
         return printWriter;
     }
 
-    public ClientHandler(Socket client, ArrayList<User> userList, BlockingQueue<String> messages) throws IOException {
+    public ClientHandler(Socket client, CopyOnWriteArrayList<User> userList, BlockingQueue<Message> messages, CopyOnWriteArrayList<ClientHandler> clientList) throws IOException {
         this.client = client;
         this.printWriter = new PrintWriter(client.getOutputStream(),true);
         this.scanner = new Scanner(client.getInputStream());
@@ -29,6 +31,7 @@ public class ClientHandler implements Runnable
         this.isRunning = true;
         this.userList = userList;
         this.messages = messages;
+        this.clientList = clientList;
     }
 
     public void protocol() throws IOException, InterruptedException {
@@ -81,17 +84,31 @@ public class ClientHandler implements Runnable
                 case "close":
                     printWriter.println("Goodbye");
                     isRunning = false;
+                    user.setOnline(false);
                     break;
             }
         }
         client.close();
         isRunning = false;
+        if(user != null)
+            user.setOnline(false);
     }
 
     private void sendMessage(String message1, String message2) throws InterruptedException {
         if(message1.equals("*"))
         {
-            messages.put(message2);
+            messages.put(new Message("all",message2));
+        }
+        else
+        {
+            for (User u: userList)
+            {
+                if(message1.equals(u.getUserName().toLowerCase()))
+                {
+                    messages.put(new Message(message1,message2));
+                    break;
+                }
+            }
         }
     }
 
@@ -118,6 +135,7 @@ public class ClientHandler implements Runnable
             {
                 printWriter.println(userName + " is now connected to the chatroom");
                 found = true;
+                this.user = u;
                 u.setOnline(true);
                 break;
             }

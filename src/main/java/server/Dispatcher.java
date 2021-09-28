@@ -5,11 +5,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Dispatcher implements Runnable
 {
-
-    BlockingQueue<String> messages;
+    BlockingQueue<Message> messages;
     CopyOnWriteArrayList<ClientHandler> clientList;
 
-    public Dispatcher(BlockingQueue<String> queue, CopyOnWriteArrayList<ClientHandler> clientList) {
+    public Dispatcher(BlockingQueue<Message> queue, CopyOnWriteArrayList<ClientHandler> clientList) {
         this.messages = queue;
         this.clientList = clientList;
     }
@@ -18,18 +17,37 @@ public class Dispatcher implements Runnable
     public void run()
     {
         String outmsg = "";
+        String receiver = "";
 
         while(true)
         {
             try {
-                outmsg = messages.take();
+                Message newMessage = messages.take();
+                outmsg = newMessage.getMessage();
+                receiver = newMessage.getReceiver();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            for (ClientHandler ch : clientList)
+            if(receiver.equals("all"))
             {
-                ch.getPrintWriter().println(outmsg);
+                for (ClientHandler ch : clientList)
+                {
+                    ch.getPrintWriter().println(outmsg);
+                }
+            }
+            else
+            {
+                for (ClientHandler ch : clientList)
+                {
+                    String userName = ch.getUser().getUserName().toLowerCase();
+                    //System.out.println(userName + " " + receiver);
+                    if(receiver.equals(userName))
+                    {
+                        ch.getPrintWriter().println(outmsg);
+                        break;
+                    }
+                }
             }
         }
     }
