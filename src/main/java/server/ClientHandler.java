@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ClientHandler implements Runnable
@@ -12,20 +13,21 @@ public class ClientHandler implements Runnable
     Scanner scanner;
     boolean isRunning;
     User user;
+    ArrayList<User> userList;
 
-    public ClientHandler(Socket client) throws IOException {
+    public ClientHandler(Socket client, ArrayList<User> userList) throws IOException {
         this.client = client;
         this.printWriter = new PrintWriter(client.getOutputStream(),true);
         this.scanner = new Scanner(client.getInputStream());
         this.user = null;
         this.isRunning = true;
+        this.userList = userList;
     }
 
-    public void protocol()
-    {
+    public void protocol() throws IOException {
         String message = "";
         printWriter.println("Welcome to the chatroom");
-        while(!message.equals("CLOSE"))
+        while(!message.equalsIgnoreCase("close") && isRunning)
         {
             message = scanner.nextLine();
             String action = "";
@@ -50,6 +52,8 @@ public class ClientHandler implements Runnable
                     break;
             }
         }
+        client.close();
+        isRunning = false;
     }
 
     @Override
@@ -57,14 +61,35 @@ public class ClientHandler implements Runnable
     {
         while(isRunning)
         {
-            this.protocol();
+            try {
+                this.protocol();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void connectUser(String userName)
-    {
-        user = new User(userName);
-        printWriter.println(userName + " is now connected to the chatroom");
+    public void connectUser(String userName) throws IOException {
+
+        boolean found = false;
+        for (User u : userList)
+        {
+            String tmp = u.getUserName().toLowerCase();
+            if(tmp.equals(userName.toLowerCase()) && !u.isOnline())
+            {
+                printWriter.println(userName + " is now connected to the chatroom");
+                found = true;
+                u.setOnline(true);
+                break;
+            }
+        }
+        if(!found)
+        {
+            printWriter.println("User " + userName + " not found or is already online");
+            client.close();
+            isRunning = false;
+
+        }
     }
 
     public User getUser() {
