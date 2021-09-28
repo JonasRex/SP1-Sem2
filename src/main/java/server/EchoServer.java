@@ -5,32 +5,35 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class EchoServer
 {
     private ServerSocket serverSocket;
     CopyOnWriteArrayList<ClientHandler> clientList;
     ArrayList<User> userList;
+    Dispatcher dispatcher;
+    BlockingQueue<String> messages;
 
     public void startServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         System.out.println("Server started on port: " + port);
         clientList = new CopyOnWriteArrayList();
+        messages = new ArrayBlockingQueue<>(10);
         userList = new ArrayList<>();
         addUsersToList();
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        dispatcher = new Dispatcher(messages, clientList);
 
         while(true)
         {
             System.out.println("Waiting for a client..");
             Socket client = serverSocket.accept();
             System.out.println("New client connectet"); //TODO tilføj brugernavn
-            ClientHandler clientHandler = new ClientHandler(client, userList);
+            ClientHandler clientHandler = new ClientHandler(client, userList, messages);
             clientList.add(clientHandler);
             executorService.execute(clientHandler);
+            executorService.execute(dispatcher);
         }
     }
 

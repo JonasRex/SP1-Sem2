@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
 
 public class ClientHandler implements Runnable
 {
@@ -14,36 +15,67 @@ public class ClientHandler implements Runnable
     boolean isRunning;
     User user;
     ArrayList<User> userList;
+    BlockingQueue<String> messages;
 
-    public ClientHandler(Socket client, ArrayList<User> userList) throws IOException {
+    public PrintWriter getPrintWriter() {
+        return printWriter;
+    }
+
+    public ClientHandler(Socket client, ArrayList<User> userList, BlockingQueue<String> messages) throws IOException {
         this.client = client;
         this.printWriter = new PrintWriter(client.getOutputStream(),true);
         this.scanner = new Scanner(client.getInputStream());
         this.user = null;
         this.isRunning = true;
         this.userList = userList;
+        this.messages = messages;
     }
 
-    public void protocol() throws IOException {
-        String message = "";
+    public void protocol() throws IOException, InterruptedException {
+        String message1 = "";
         printWriter.println("Welcome to the chatroom");
-        while(!message.equalsIgnoreCase("close") && isRunning)
+        while(!message1.equalsIgnoreCase("close") && isRunning)
         {
-            message = scanner.nextLine();
+            message1 = scanner.nextLine();
             String action = "";
-            if(message.contains("#"))
+            String message2 = "";
+            if(message1.contains("#"))
             {
-                String[] strings = message.split("#");
+                String[] splitter = message1.split("#");
+                String[] strings = new String[3];
+                strings[0] = splitter[0];
+
+                if(splitter.length > 1)
+                {
+                    strings[1] = splitter[1];
+                }
+
+                if(splitter.length > 2)
+                {
+                    strings[2] = splitter[2];
+                }
+
                 action = strings[0];
+
                 if(strings[1] != null)
                 {
-                    message = strings[1];
+                    message1 = strings[1];
+                }
+
+                if(strings[2] != null)
+                {
+                    message2 = strings[2];
                 }
             }
+
             switch (action.toLowerCase())
             {
                 case "connect":
-                    connectUser(message);
+                    connectUser(message1);
+                    break;
+
+                case "send":
+                    sendMessage(message1, message2);
                     break;
 
                 case "close":
@@ -56,6 +88,13 @@ public class ClientHandler implements Runnable
         isRunning = false;
     }
 
+    private void sendMessage(String message1, String message2) throws InterruptedException {
+        if(message1.equals("*"))
+        {
+            messages.put(message2);
+        }
+    }
+
     @Override
     public void run()
     {
@@ -63,7 +102,7 @@ public class ClientHandler implements Runnable
         {
             try {
                 this.protocol();
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
