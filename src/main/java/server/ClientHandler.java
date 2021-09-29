@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientHandler implements Runnable {
     // All shared lists
-    CopyOnWriteArrayList<ClientHandler> clientList;
+    //CopyOnWriteArrayList<ClientHandler> clientList;
     CopyOnWriteArrayList<User> userList;
     BlockingQueue<Message> messages;
 
@@ -42,7 +42,7 @@ public class ClientHandler implements Runnable {
 
         this.userList = userList;
         this.messages = messages;
-        this.clientList = clientList;
+//        this.clientList = clientList;
     }
 
     public void protocol() throws IOException, InterruptedException {
@@ -85,7 +85,7 @@ public class ClientHandler implements Runnable {
         strings[0] = splitter[0];
 
         if (splitter.length > 1) {
-            strings[1] = splitter[1];
+            strings[1] = splitter[1].toLowerCase();
         }
 
         if (splitter.length > 2) {

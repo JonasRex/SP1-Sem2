@@ -21,7 +21,7 @@ public class EchoServer {
         messages = new ArrayBlockingQueue<>(10);
         userList = new CopyOnWriteArrayList<>();
         addUsersToList();
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService executorService = Executors.newFixedThreadPool(100); //TODO: virkede ikke med kun 10 tråde, når man har plus 4 bruger på.
         dispatcher = new Dispatcher(messages, clientList);
 
         while (true) {
