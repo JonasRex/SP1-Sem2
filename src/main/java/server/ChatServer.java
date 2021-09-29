@@ -14,7 +14,7 @@ public class ChatServer {
         EchoServer echoServer = new EchoServer();
         try {
             echoServer.startServer(port);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

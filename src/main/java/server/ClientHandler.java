@@ -46,7 +46,7 @@ public class ClientHandler implements Runnable {
 
     public void protocol() throws IOException, InterruptedException {
 
-        printWriter.println("Welcome to the chatroom");
+        printWriter.println(Thread.currentThread().getName() + ": " +"Welcome to the chatroom");
 
         while (!closed) {
             String[] strings = textSplitter(scanner.nextLine());
@@ -65,6 +65,7 @@ public class ClientHandler implements Runnable {
 
                 case "close":
                     closed = true;
+                    System.out.println("CLOSE#0: Normal close");
                     break;
                 default:
                     printWriter.println("Unknown action. Try again.");
@@ -94,7 +95,7 @@ public class ClientHandler implements Runnable {
         return strings;
     }
 
-    private void connectUser(String userName) throws IOException {
+    private void connectUser(String userName) throws IOException, InterruptedException {
 
         boolean found = false;
         for (User u : userList) {
@@ -105,13 +106,17 @@ public class ClientHandler implements Runnable {
                 found = true;
                 this.user = u;
                 u.setOnline(true);
+                whoIsOnline("all");
                 break;
             }
         }
         if (!found) {
             printWriter.println("User " + userName + " not found or is already online");
+            System.out.println("CLOSE#2: User not found");
             client.close();
             isRunning = false;
+            closed = true;
+
 
         }
     }
@@ -133,11 +138,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void closingConnection() {
+    private void closingConnection() throws InterruptedException {
         printWriter.println("Goodbye");
         isRunning = false;
         if (user != null)
             user.setOnline(false);
+        whoIsOnline("all");
     }
 
     @Override
@@ -149,6 +155,20 @@ public class ClientHandler implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void whoIsOnline(String username) throws InterruptedException {
+        String onlineList = "User currently online: ";
+
+        for (User user : userList) {
+            if(user.isOnline()){
+
+                    onlineList += user.getUserName() + ",";
+
+            }
+
+        }
+        messages.put(new Message(username, onlineList));
     }
 
     public User getUser() {

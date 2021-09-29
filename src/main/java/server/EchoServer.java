@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.*;
 
 public class EchoServer {
@@ -14,7 +15,7 @@ public class EchoServer {
     Dispatcher dispatcher;
     BlockingQueue<Message> messages;
 
-    public void startServer(int port) throws IOException {
+    public void startServer(int port) throws IOException, InterruptedException {
         serverSocket = new ServerSocket(port);
         System.out.println("Server started on port: " + port);
         clientList = new CopyOnWriteArrayList<>();
@@ -24,14 +25,28 @@ public class EchoServer {
         ExecutorService executorService = Executors.newFixedThreadPool(100); //TODO: virkede ikke med kun 10 tråde, når man har plus 4 bruger på.
         dispatcher = new Dispatcher(messages, clientList);
 
+        ServerHandler serverHandler = new ServerHandler(userList, messages, serverSocket);
+        executorService.execute(serverHandler);
+
         while (true) {
+
+
+
             System.out.println("Waiting for a client..");
             Socket client = serverSocket.accept();
             System.out.println("New client connectet"); //TODO tilføj brugernavn
             ClientHandler clientHandler = new ClientHandler(client, userList, messages);
+
             clientList.add(clientHandler);
+
+
+
             executorService.execute(clientHandler);
             executorService.execute(dispatcher);
+
+
+
+
         }
     }
 
