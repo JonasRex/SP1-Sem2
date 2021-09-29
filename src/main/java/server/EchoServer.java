@@ -28,7 +28,7 @@ public class EchoServer {
             System.out.println("Waiting for a client..");
             Socket client = serverSocket.accept();
             System.out.println("New client connectet"); //TODO tilføj brugernavn
-            ClientHandler clientHandler = new ClientHandler(client, userList, messages, clientList);
+            ClientHandler clientHandler = new ClientHandler(client, userList, messages);
             clientList.add(clientHandler);
             executorService.execute(clientHandler);
             executorService.execute(dispatcher);

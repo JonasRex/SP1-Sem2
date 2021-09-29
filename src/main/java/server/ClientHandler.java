@@ -9,7 +9,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientHandler implements Runnable {
     // All shared lists
-    //CopyOnWriteArrayList<ClientHandler> clientList;
     CopyOnWriteArrayList<User> userList;
     BlockingQueue<Message> messages;
 
@@ -30,7 +29,7 @@ public class ClientHandler implements Runnable {
         return printWriter;
     }
 
-    public ClientHandler(Socket client, CopyOnWriteArrayList<User> userList, BlockingQueue<Message> messages, CopyOnWriteArrayList<ClientHandler> clientList) throws IOException {
+    public ClientHandler(Socket client, CopyOnWriteArrayList<User> userList, BlockingQueue<Message> messages) throws IOException {
         this.client = client;
         this.printWriter = new PrintWriter(client.getOutputStream(), true);
         this.scanner = new Scanner(client.getInputStream());
@@ -42,7 +41,7 @@ public class ClientHandler implements Runnable {
 
         this.userList = userList;
         this.messages = messages;
-//        this.clientList = clientList;
+
     }
 
     public void protocol() throws IOException, InterruptedException {
@@ -78,7 +77,6 @@ public class ClientHandler implements Runnable {
 
     private String[] textSplitter(String message){
         String[] strings = new String[3];
-
 
         String[] splitter = message.split("#");
 
