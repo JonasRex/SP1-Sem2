@@ -34,6 +34,7 @@ public class Dispatcher implements Runnable {
                 for (ClientHandler ch : clientList) {
                     String userName = ch.getUser().getUserName().toLowerCase();
                     if (receiver.equals(userName)) {
+
                         ch.getPrintWriter().println(outmsg);
                         break;
                     }

@@ -73,7 +73,7 @@ public class ClientHandler implements Runnable {
 
         }
         closingConnection();
-        client.close();
+
     }
 
     private String[] textSplitter(String message){
@@ -106,7 +106,7 @@ public class ClientHandler implements Runnable {
                 found = true;
                 this.user = u;
                 u.setOnline(true);
-                whoIsOnline("all");
+                messages.put(whoIsOnline("all"));
                 break;
             }
         }
@@ -128,6 +128,8 @@ public class ClientHandler implements Runnable {
             } else {
                 for (User u : userList) {
                     if (receiver.equals(u.getUserName().toLowerCase())) {
+
+
                         messages.put(new Message(receiver, user.getUserName() + ": " + msg));
                         break;
                     }
@@ -138,12 +140,16 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void closingConnection() throws InterruptedException {
+    private void closingConnection() throws InterruptedException, IOException {
         printWriter.println("Goodbye");
         isRunning = false;
         if (user != null)
             user.setOnline(false);
-        whoIsOnline("all");
+        messages.put(whoIsOnline("all"));
+
+        printWriter.close();
+        scanner.close();
+        client.close();
     }
 
     @Override
@@ -157,7 +163,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void whoIsOnline(String username) throws InterruptedException {
+    public Message whoIsOnline(String username) throws InterruptedException {
         String onlineList = "User currently online: ";
 
         for (User user : userList) {
@@ -168,7 +174,8 @@ public class ClientHandler implements Runnable {
             }
 
         }
-        messages.put(new Message(username, onlineList));
+        return new Message(username, onlineList);
+
     }
 
     public User getUser() {
