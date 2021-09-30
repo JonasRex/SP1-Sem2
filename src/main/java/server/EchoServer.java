@@ -22,31 +22,19 @@ public class EchoServer {
         messages = new ArrayBlockingQueue<>(10);
         userList = new CopyOnWriteArrayList<>();
         addUsersToList();
-        ExecutorService executorService = Executors.newFixedThreadPool(100); //TODO: virkede ikke med kun 10 tråde, når man har plus 4 bruger på.
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
         dispatcher = new Dispatcher(messages, clientList);
-
         ServerHandler serverHandler = new ServerHandler(userList, messages, serverSocket);
         executorService.execute(serverHandler);
 
         while (true) {
-
-
-
             System.out.println("Waiting for a client..");
             Socket client = serverSocket.accept();
-            System.out.println("New client connectet"); //TODO tilføj brugernavn
+            System.out.println("New client connectet");
             ClientHandler clientHandler = new ClientHandler(client, userList, messages);
-
             clientList.add(clientHandler);
-
-
-
             executorService.execute(clientHandler);
             executorService.execute(dispatcher);
-
-
-
-
         }
     }
 

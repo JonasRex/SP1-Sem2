@@ -41,7 +41,6 @@ public class ServerHandler implements Runnable{
                 default:
                     System.out.println("Unknown action. Try again.");
             }
-
         }
     }
 
@@ -52,13 +51,11 @@ public class ServerHandler implements Runnable{
             if(user.isOnline()){
                 onlineList += user.getUserName() + ",";
             }
-
         }
         messages.put(new Message(username, onlineList));
     }
 
     private void sendMessage(String receiver, String msg) throws InterruptedException {
-//        if (isConnected) {
             if (receiver.equals("*")) {
                 messages.put(new Message("all", "Admin: " + msg));
             } else {
@@ -69,9 +66,6 @@ public class ServerHandler implements Runnable{
                     }
                 }
             }
-//        } else {
-//            printWriter.println("You are not connected yet.");
-//        }
     }
 
     @Override
@@ -82,8 +76,6 @@ public class ServerHandler implements Runnable{
            } catch (InterruptedException | IOException e) {
                e.printStackTrace();
            }
-
-
        }
     }
 

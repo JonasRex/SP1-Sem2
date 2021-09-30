@@ -34,26 +34,19 @@ public class ClientHandler implements Runnable {
         this.printWriter = new PrintWriter(client.getOutputStream(), true);
         this.scanner = new Scanner(client.getInputStream());
         this.user = new User("", 0);
-
         this.isRunning = true; // This controls the Run methods while loop;
         this.isConnected = false; // This checks if user is connected, and makes sure you can send messages before connected.
         this.closed = false;  // This controls the protocol while loop
-
         this.userList = userList;
         this.messages = messages;
-
     }
 
     public void protocol() throws IOException, InterruptedException {
 
-        printWriter.println(Thread.currentThread().getName() + ": " +"Welcome to the chatroom");
+        printWriter.println("Welcome to the chatroom");
 
         while (!closed) {
             String[] strings = textSplitter(scanner.nextLine());
-
-            // strings[0]#strings[1]#strings[2]
-            // strings[0] = action, strings[1] = message1, strings[2] = message2
-
             switch (strings[0].toLowerCase()) {
                 case "connect":
                     connectUser(strings[1]);
@@ -70,10 +63,8 @@ public class ClientHandler implements Runnable {
                 default:
                     printWriter.println("Unknown action. Try again.");
             }
-
         }
         closingConnection();
-
     }
 
     private String[] textSplitter(String message){
@@ -90,8 +81,6 @@ public class ClientHandler implements Runnable {
         if (splitter.length > 2) {
             strings[2] = splitter[2];
         }
-
-
         return strings;
     }
 
@@ -116,8 +105,6 @@ public class ClientHandler implements Runnable {
             client.close();
             isRunning = false;
             closed = true;
-
-
         }
     }
 
@@ -128,8 +115,6 @@ public class ClientHandler implements Runnable {
             } else {
                 for (User u : userList) {
                     if (receiver.equals(u.getUserName().toLowerCase())) {
-
-
                         messages.put(new Message(receiver, user.getUserName() + ": " + msg));
                         break;
                     }
@@ -170,12 +155,9 @@ public class ClientHandler implements Runnable {
             if(user.isOnline()){
 
                     onlineList += user.getUserName() + ",";
-
             }
-
         }
         return new Message(username, onlineList);
-
     }
 
     public User getUser() {
