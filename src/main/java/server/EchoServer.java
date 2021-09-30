@@ -3,29 +3,58 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.*;
 
-public class EchoServer
-{
+public class EchoServer {
     private ServerSocket serverSocket;
     CopyOnWriteArrayList<ClientHandler> clientList;
+    CopyOnWriteArrayList<User> userList;
+    Dispatcher dispatcher;
+    BlockingQueue<Message> messages;
 
-    public void startServer(int port) throws IOException {
+    public void startServer(int port) throws IOException, InterruptedException {
         serverSocket = new ServerSocket(port);
         System.out.println("Server started on port: " + port);
-        clientList = new CopyOnWriteArrayList();
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        clientList = new CopyOnWriteArrayList<>();
+        messages = new ArrayBlockingQueue<>(10);
+        userList = new CopyOnWriteArrayList<>();
+        addUsersToList();
+        ExecutorService executorService = Executors.newFixedThreadPool(100); //TODO: virkede ikke med kun 10 tråde, når man har plus 4 bruger på.
+        dispatcher = new Dispatcher(messages, clientList);
 
-        while(true)
-        {
+        ServerHandler serverHandler = new ServerHandler(userList, messages, serverSocket);
+        executorService.execute(serverHandler);
+
+        while (true) {
+
+
+
             System.out.println("Waiting for a client..");
             Socket client = serverSocket.accept();
             System.out.println("New client connectet"); //TODO tilføj brugernavn
-            ClientHandler clientHandler = new ClientHandler(client);
+            ClientHandler clientHandler = new ClientHandler(client, userList, messages);
+
             clientList.add(clientHandler);
+
+
+
             executorService.execute(clientHandler);
+            executorService.execute(dispatcher);
+
+
+
+
         }
+    }
+
+    private void addUsersToList() {
+        userList.add(new User("Eske", 0));
+        userList.add(new User("Jonas", 1));
+        userList.add(new User("Lars", 2));
+        userList.add(new User("Bjarne", 3));
+        userList.add(new User("Thor", 4));
     }
 }
